@@ -1,10 +1,9 @@
-name: Deploy Painel Hálux to GitHub Pages
+name: Deploy Painel Hálux
 
 on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 permissions:
@@ -16,30 +15,33 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
+    runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout do repositório
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configurar GitHub Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Inserir SHEET_ID no index.html
+      - name: Inject SHEET_ID
         run: |
           sed -i "s/__SHEET_ID__/${{ vars.SHEET_ID }}/g" index.html
 
-      - name: Enviar arquivos para o GitHub Pages
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
           path: '.'
 
-      - name: Publicar no GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
